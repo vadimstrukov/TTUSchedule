@@ -20,7 +20,7 @@
         android:layout_height="fill_parent"
         android:gravity="center"
         android:textColor="#0f100f"
-        android:typeface="monospace"
+        android:typeface="sans"
         android:text="@string/empty_list" />
 
 </FrameLayout>
