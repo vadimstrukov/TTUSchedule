@@ -1,0 +1,36 @@
+package ee.ttu.schedule.calendar;
+
+import android.graphics.Color;
+import android.text.format.Time;
+
+/**
+ * Created by fjodor on 18.12.15.
+ */
+public class Utils {
+    public static int getDisplayColorFromColor(int color) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[1] = Math.min(hsv[1] * 1.3f, 1.0f);
+        hsv[2] = hsv[2] * 0.8f;
+        return Color.HSVToColor(hsv);
+    }
+    public static boolean isSaturday(int column, int firstDayOfWeek) {
+        return (firstDayOfWeek == Time.SUNDAY && column == 6)
+                || (firstDayOfWeek == Time.MONDAY && column == 5)
+                || (firstDayOfWeek == Time.SATURDAY && column == 0);
+    }
+
+    public static boolean isSunday(int column, int firstDayOfWeek) {
+        return (firstDayOfWeek == Time.SUNDAY && column == 0)
+                || (firstDayOfWeek == Time.MONDAY && column == 6)
+                || (firstDayOfWeek == Time.SATURDAY && column == 1);
+    }
+    public static int getDeclinedColorFromColor(int color) {
+        int bg = 0xffffffff;
+        int a = 0x66;
+        int r = (((color & 0x00ff0000) * a) + ((bg & 0x00ff0000) * (0xff - a))) & 0xff000000;
+        int g = (((color & 0x0000ff00) * a) + ((bg & 0x0000ff00) * (0xff - a))) & 0x00ff0000;
+        int b = (((color & 0x000000ff) * a) + ((bg & 0x000000ff) * (0xff - a))) & 0x0000ff00;
+        return (0xff000000) | ((r | g | b) >> 8);
+    }
+}

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">TTU Schedule</string>
     <string name="action_today">Today</string>
     <string name="action_renew">Update</string>
@@ -20,4 +20,15 @@
     <string name="loading_successful">Loading successful</string>
     <string name="loading_failed">Loading failed</string>
     <string name="action_search_group">Search group</string>
+
+    <!--Calendar-->
+    <string name="no_title_label">Search group</string>
+    <plurals name="month_more_events">
+        <!-- additional events message for 1 event, the quotes force a literal interpretation of the
+            string [CHAR LIMIT = 10] -->
+        <item quantity="one">"+1"</item>
+        <!-- additional events message for multiple events [CHAR LIMIT = 10] -->
+        <item quantity="other">+<xliff:g id="number">%d</xliff:g></item>
+    </plurals>
+
 </resources>
