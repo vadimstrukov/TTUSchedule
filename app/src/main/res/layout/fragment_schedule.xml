@@ -12,7 +12,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:columnGap="8dp"
-            app:useNewColoringStyle="true"
             app:dayBackgroundColor="#05000000"
             app:eventTextColor="@android:color/white"
             app:headerColumnBackground="#ffffffff"
@@ -24,6 +23,6 @@
             app:noOfVisibleDays="3"
             app:textSize="12sp"
             app:todayBackgroundColor="#1848adff"
-            app:xScrollingSpeed="0.77"/>
+            app:xScrollingSpeed="1"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 </FrameLayout>

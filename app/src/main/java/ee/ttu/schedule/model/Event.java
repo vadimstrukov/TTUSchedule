@@ -1,5 +1,7 @@
 package ee.ttu.schedule.model;
 
+import android.database.Cursor;
+
 import java.io.Serializable;
 
 public class Event implements Serializable {
@@ -57,6 +59,17 @@ public class Event implements Serializable {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public static Event generateFromCursor(Cursor cursor){
+        final Event event = new Event();
+        event.setID(cursor.getInt(0));
+        event.setDateStart(cursor.getLong(0));
+        event.setDateEnd(cursor.getLong(0));
+        event.setDescription(cursor.getString(0));
+        event.setLocation(cursor.getString(0));
+        event.setSummary(cursor.getString(0));
+        return event;
     }
 
 }

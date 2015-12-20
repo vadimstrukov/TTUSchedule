@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/TTUSchedule.iml" filepath="$PROJECT_DIR$/TTUSchedule.iml" />
-      <module fileurl="file://$PROJECT_DIR$/WeekViewLib/WeekViewLib.iml" filepath="$PROJECT_DIR$/WeekViewLib/WeekViewLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeekView/WeekView.iml" filepath="$PROJECT_DIR$/WeekView/WeekView.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

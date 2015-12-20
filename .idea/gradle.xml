@@ -10,7 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/WeekViewLib" />
+            <option value="$PROJECT_DIR$/WeekView" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
