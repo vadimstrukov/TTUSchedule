@@ -13,6 +13,7 @@ import com.vadimstrukov.ttuschedule.R;
 import ee.ttu.schedule.utils.Constants;
 
 public class AboutFragment extends PreferenceFragment {
+    public static final String TAG = "AboutFragment";
     private static final String BUILD_VERSION = "build_version";
     private static final String SELECTED_GROUP = "selected_group";
     @Override

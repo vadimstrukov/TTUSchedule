@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,25 +34,18 @@ import com.alamkanak.weekview.WeekViewEvent;
 import com.alamkanak.weekview.WeekViewLoader;
 import com.vadimstrukov.ttuschedule.R;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.TimeZone;
 
 import ee.ttu.schedule.drawable.DayOfMonthDrawable;
-import ee.ttu.schedule.model.Event;
 import ee.ttu.schedule.provider.BaseContract;
 import ee.ttu.schedule.provider.EventContract;
 import ee.ttu.schedule.utils.Constants;
@@ -61,19 +53,20 @@ import ee.ttu.schedule.utils.SyncUtils;
 
 public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekView.EventClickListener, LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener, SyncStatusObserver, DateTimeInterpreter {
+    public static final String TAG = "ScheduleFragment";
+
+    private static final String BUNDLE_KEY_RESTORE_TIME = "key_restore_time";
+    private static final String ARG_TYPE = "arg_type";
 
     public static final int TYPE_DAY_VIEW = 1;
     public static final int TYPE_THREE_DAY_VIEW = 2;
-    private static final String ARG_TYPE = "arg_type";
-    private int WEEK_TYPE;
 
-    private Map<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
-
+    private int mNumberOfVisibleDays = 1;
+    private final Map<Integer, List<WeekViewEvent>> eventMap = new HashMap<>();
     private SwipeRefreshLayout swipeRefreshLayout;
     private Object syncObserverHandle;
     private WeekView mWeekView;
     private String[] colorArray;
-
     private SyncUtils syncUtils;
 
     public ScheduleFragment() {
@@ -88,17 +81,30 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
         return scheduleFragment;
     }
 
+    public void setTypeView(int view){
+        switch (view) {
+            case TYPE_DAY_VIEW:
+                mNumberOfVisibleDays = 1;
+                break;
+            case TYPE_THREE_DAY_VIEW:
+                mNumberOfVisibleDays = 3;
+                break;
+        }
+        if(mWeekView != null)
+            mWeekView.setNumberOfVisibleDays(mNumberOfVisibleDays);
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable("date", mWeekView.getLastVisibleDay());
+        outState.putSerializable(BUNDLE_KEY_RESTORE_TIME, mWeekView.getLastVisibleDay());
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(savedInstanceState != null)
-            mWeekView.goToDate((Calendar) savedInstanceState.getSerializable("date"));
+            mWeekView.goToDate((Calendar) savedInstanceState.getSerializable(BUNDLE_KEY_RESTORE_TIME));
     }
 
     @Override
@@ -107,7 +113,7 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
         syncUtils = new SyncUtils(getActivity());
         colorArray = getResources().getStringArray(R.array.colors);
         if (getArguments() != null)
-            WEEK_TYPE = getArguments().getInt(ARG_TYPE, TYPE_THREE_DAY_VIEW);
+            setTypeView(getArguments().getInt(ARG_TYPE, TYPE_DAY_VIEW));
         setHasOptionsMenu(true);
         getLoaderManager().restartLoader(0, null, this);
     }
@@ -125,15 +131,9 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
         mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
         mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
         mWeekView.setDateTimeInterpreter(this);
-        mWeekView.getLastVisibleDay();
-        switch (WEEK_TYPE) {
-            case TYPE_DAY_VIEW:
-                mWeekView.setNumberOfVisibleDays(1);
-                break;
-            case TYPE_THREE_DAY_VIEW:
-                mWeekView.setNumberOfVisibleDays(3);
-                break;
-        }
+        mWeekView.setNumberOfVisibleDays(mNumberOfVisibleDays);
+        mWeekView.goToToday();
+        mWeekView.goToHour(getToday().get(Calendar.HOUR_OF_DAY));
         return rootView;
     }
 
@@ -167,7 +167,7 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
         switch (item.getItemId()) {
             case R.id.action_today:
                 mWeekView.goToToday();
-                mWeekView.goToHour(8);
+                mWeekView.goToHour(getToday().get(Calendar.HOUR_OF_DAY));
                 return true;
             case R.id.action_update:
                 syncUtils.syncEvents(PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext()).getString(Constants.GROUP, null));
@@ -204,8 +204,7 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
             today = new DayOfMonthDrawable(context);
         }
         // Set the day and update the icon
-        Calendar calendar = GregorianCalendar.getInstance(TimeZone.getDefault());
-        today.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+        today.setDayOfMonth(getToday().get(Calendar.DAY_OF_MONTH));
         icon.mutate();
         icon.setDrawableByLayerId(R.id.today_icon_day, today);
     }
@@ -223,8 +222,8 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
         int id = -1;
         data.moveToPosition(-1);
         while (data.moveToNext()) {
-            final Calendar begin = new GregorianCalendar(TimeZone.getDefault());
-            final Calendar end = new GregorianCalendar(TimeZone.getDefault());
+            final Calendar begin = getToday();
+            final Calendar end = getToday();
             begin.setTimeInMillis(data.getLong(1));
             end.setTimeInMillis(data.getLong(2));
             if (id == -1)
@@ -292,5 +291,9 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
     @Override
     public String interpretTime(int hour) {
         return hour + ":00";
+    }
+
+    private Calendar getToday(){
+        return GregorianCalendar.getInstance(TimeZone.getTimeZone("EST"));
     }
 }
