@@ -89,6 +89,19 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("date", mWeekView.getLastVisibleDay());
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState != null)
+            mWeekView.goToDate((Calendar) savedInstanceState.getSerializable("date"));
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         syncUtils = new SyncUtils(getActivity());
@@ -112,7 +125,7 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
         mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
         mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
         mWeekView.setDateTimeInterpreter(this);
-        mWeekView.goToHour(8);
+        mWeekView.getLastVisibleDay();
         switch (WEEK_TYPE) {
             case TYPE_DAY_VIEW:
                 mWeekView.setNumberOfVisibleDays(1);
