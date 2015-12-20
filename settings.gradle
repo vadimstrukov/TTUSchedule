@@ -1,1 +1,1 @@
-include ':app', ':WeekViewLib'
+include ':app', ':WeekView'

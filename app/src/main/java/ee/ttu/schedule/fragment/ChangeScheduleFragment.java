@@ -38,6 +38,8 @@ import ee.ttu.schedule.provider.GroupContract;
 import ee.ttu.schedule.utils.SyncUtils;
 
 public class ChangeScheduleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AbsListView.MultiChoiceModeListener, AdapterView.OnItemClickListener, SearchView.OnQueryTextListener, SyncStatusObserver, SwipeRefreshLayout.OnRefreshListener {
+    public static final String TAG = "ChangeScheduleFragment";
+
     private ListView groupListView;
     private TextView emptyText;
     private SwipeRefreshLayout swipeRefreshLayout;

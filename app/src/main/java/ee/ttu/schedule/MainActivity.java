@@ -1,5 +1,6 @@
 package ee.ttu.schedule;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -20,9 +21,9 @@ import ee.ttu.schedule.fragment.AboutFragment;
 import ee.ttu.schedule.fragment.ChangeScheduleFragment;
 import ee.ttu.schedule.fragment.ScheduleFragment;
 
-public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener {
+public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerItemClickListener, Drawer.OnDrawerListener {
 
-    private final Handler handler = new Handler();
+    private Fragment fragment = ScheduleFragment.newInstance(ScheduleFragment.TYPE_DAY_VIEW);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         this.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().replace(R.id.fragment, ScheduleFragment.newInstance(ScheduleFragment.TYPE_DAY_VIEW)).commit();
+            getFragmentManager().beginTransaction().add(R.id.fragment, fragment, ScheduleFragment.TAG).addToBackStack(ScheduleFragment.TAG).commit();
         }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.ttu_schedule_ic);
@@ -47,31 +48,44 @@ public class MainActivity extends AppCompatActivity implements Drawer.OnDrawerIt
         drawerBuilder.withHeader(R.layout.drawer_header);
         drawerBuilder.withDrawerItems(drawerItems);
         drawerBuilder.withOnDrawerItemClickListener(this);
+        drawerBuilder.withOnDrawerListener(this);
         drawerBuilder.build();
     }
 
     @Override
     public boolean onItemClick(View view, int position, final IDrawerItem drawerItem) {
         assert drawerItem != null;
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                switch (drawerItem.getIdentifier()) {
-                    case 0:
-                        getFragmentManager().beginTransaction().replace(R.id.fragment, ScheduleFragment.newInstance(ScheduleFragment.TYPE_DAY_VIEW)).commit();
-                        break;
-                    case 1:
-                        getFragmentManager().beginTransaction().replace(R.id.fragment, ScheduleFragment.newInstance(ScheduleFragment.TYPE_THREE_DAY_VIEW)).commit();
-                        break;
-                    case 2:
-                        getFragmentManager().beginTransaction().replace(R.id.fragment, new ChangeScheduleFragment()).commit();
-                        break;
-                    case 3:
-                        getFragmentManager().beginTransaction().replace(R.id.fragment, new AboutFragment()).commit();
-                        break;
-                }
-            }
-        });
+        switch (drawerItem.getIdentifier()) {
+            case 0:
+                fragment = getFragmentManager().findFragmentByTag(ScheduleFragment.TAG);
+                ((ScheduleFragment)fragment).setTypeView(ScheduleFragment.TYPE_DAY_VIEW);
+                break;
+            case 1:
+                fragment = getFragmentManager().findFragmentByTag(ScheduleFragment.TAG);
+                ((ScheduleFragment)fragment).setTypeView(ScheduleFragment.TYPE_THREE_DAY_VIEW);
+                break;
+            case 2:
+                fragment = new ChangeScheduleFragment();
+                break;
+            case 3:
+                fragment = new AboutFragment();
+                break;
+        }
         return false;
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+        getFragmentManager().beginTransaction().replace(R.id.fragment, fragment).commit();
+    }
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
     }
 }
