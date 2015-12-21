@@ -294,6 +294,6 @@ public class ScheduleFragment extends Fragment implements WeekViewLoader, WeekVi
     }
 
     private Calendar getToday(){
-        return GregorianCalendar.getInstance(TimeZone.getTimeZone("EST"));
+        return GregorianCalendar.getInstance(TimeZone.getTimeZone("UTC"));
     }
 }
